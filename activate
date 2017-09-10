@@ -1,0 +1,93 @@
+export GOPATH=$PWD #nguyenban: export GOPATH="$(cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd)"
+export GOBIN=$GOPATH/bin
+export OLDPS1=$PS1
+#export PS1="[go:$(basename $GOPATH)] $PS1"
+export PS1="\e[0;31m[\u@\h, go: \W]\$ \e[m"
+alias gcd="cd $GOPATH"
+
+#tao bien luu ten file output de thuc thi
+GOFILEOUT="main"
+
+
+
+
+#========dinh nghia mau cho output
+#normal=$(tput sgr0)                      # normal text
+normal=$'\e[0m'                           # (works better sometimes)
+bold=$(tput bold)                         # make colors bold/bright
+red="$bold$(tput setaf 1)"                # bright red text
+green=$(tput setaf 2)                     # dim green text
+fawn=$(tput setaf 3); beige="$fawn"       # dark yellow text
+yellow="$bold$fawn"                       # bright yellow text
+darkblue=$(tput setaf 4)                  # dim blue text
+blue="$bold$darkblue"                     # bright blue text
+purple=$(tput setaf 5); magenta="$purple" # magenta text
+pink="$bold$purple"                       # bright magenta text
+darkcyan=$(tput setaf 6)                  # dim cyan text
+cyan="$bold$darkcyan"                     # bright cyan text
+gray=$(tput setaf 7)                      # dim white text
+darkgray="$bold"$(tput setaf 0)           # bold black = dark gray text
+white="$bold$gray"                        # bright white text
+#=================================
+
+#echo "${red}hello ${yellow}this is ${green}coloured${normal}"
+echo "${red}usage to see supported functions${normal}"
+
+
+usage() {
+    echo "${darkgray}=============================================="
+    echo "${red}deactivate                ==> exit environment"
+    echo "${green}goinstall [file_name]     ==> go install command. default for file_name = main"
+    echo "${yellow}gorun [file_name]         ==> go run command. default for file_name = main"
+    echo "${darkblue}gobuildandrun [file_name] ==> go install command, after that, execute output file. default for file_name = main"
+    echo "${darkgray}==============================================${normal}"
+}
+
+deactivate() {
+	export PS1=$OLDPS1
+	unset GOPATH
+	unset GOBIN
+	unset OLDPS1
+	unalias gcd
+	unset deactivate
+}
+
+goinstall() {
+    if [ $# -eq 0 ] ; then
+        echo "${darkgray}Using default name: main.go"
+        echo "==============================================${normal}"
+        #go install $GOPATH/src/main.go
+    else
+        echo "${darkgray}Using input name: $1"
+        echo "==============================================${normal}"
+        GOFILEOUT=$1
+        #go install $GOPATH/src/$GOFILEOUT.go
+    fi
+    echo "${blue}run: go install src/$GOFILEOUT.go${normal}"
+    go install $GOPATH/src/$GOFILEOUT.go
+}
+gorun() {
+    if [ $# -ne 0 ] ; then
+        echo "${darkgray}Using input name: $1"
+        echo "==============================================${normal}"
+        GOFILEOUT=$1
+    fi
+    echo "${blue}run: go run src/$GOFILEOUT.go${normal}"
+    #####
+    cd $GOPATH/bin
+    go run $GOPATH/src/$GOFILEOUT.go
+    cd $GOPATH
+}
+gobuildandrun() {
+    goinstall $1
+    gorun $1
+}
+
+rmpkg() {
+    echo "remove package: $1"
+    echo "remove in: $GOPATH/pkg/linux_amd64/$1"
+    echo "remove in: $GOPATH/src/$1"
+    echo "this function is not effective for now"
+    #rm -R $GOPATH/pkg/linux_amd64/$1
+    #rm -R $GOPATH/src/$1
+}
